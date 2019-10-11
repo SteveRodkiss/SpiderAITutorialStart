@@ -23,12 +23,12 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float dist = Vector3.Distance(player.position, transform.position);
+        //float dist = Vector3.Distance(player.position, transform.position);
         switch (aiState)
         {
             case AIState.idle:
                 //what we do in idle- switch states
-                if (dist < 10f)
+                if (CanSeePlayer())
                 {
                     aiState = AIState.moving;
                     //set the targer destination
@@ -38,7 +38,7 @@ public class Enemy : MonoBehaviour
             case AIState.moving:
                 //what we do switch state
                 nav.SetDestination(player.position);
-                if (dist > 10f)
+                if (CanSeePlayer() == false)
                 {
                     nav.SetDestination(transform.position);
                     aiState = AIState.idle;
@@ -48,9 +48,26 @@ public class Enemy : MonoBehaviour
                 break;
             default:
                 break;
-        }
-
-
-        
+        }        
     }
+
+    bool CanSeePlayer()
+    {
+        Vector3 direction = (player.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, direction);
+        Ray ray = new Ray(transform.position, direction);
+        if (Physics.Raycast(ray,out RaycastHit hit,10f))
+        {
+            if (hit.collider.tag == "Player" && angle < 45f)
+            {
+                //hit the player
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+
+
 }
