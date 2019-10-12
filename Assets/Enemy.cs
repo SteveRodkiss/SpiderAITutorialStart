@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour
 
     NavMeshAgent nav;
     Transform player;
+    public Animator animator;
 
     // Start is called before the first frame update
     void Start()
@@ -27,28 +28,38 @@ public class Enemy : MonoBehaviour
         switch (aiState)
         {
             case AIState.idle:
-                //what we do in idle- switch states
-                if (CanSeePlayer())
-                {
-                    aiState = AIState.moving;
-                    //set the targer destination
-                    //nav.SetDestination(player.position);
-                }
+                OnIdle();
                 break;
             case AIState.moving:
                 OnMoving(dist);
                 break;
             case AIState.attacking:
-                nav.SetDestination(transform.position);
-                if (dist > 2f)
-                {
-                    //we are out of attack range
-                    aiState = AIState.idle;
-                }
+                OnAttacking(dist);
                 break;
             default:
                 break;
         }        
+    }
+
+    private void OnAttacking(float dist)
+    {
+        nav.SetDestination(transform.position);
+        if (dist > 2f)
+        {
+            //we are out of attack range
+            aiState = AIState.idle;
+            animator.SetBool("attacking", false);
+        }
+    }
+
+    private void OnIdle()
+    {
+        //what we do in idle- switch states
+        if (CanSeePlayer())
+        {
+            aiState = AIState.moving;
+            animator.SetBool("walking", true);
+        }
     }
 
     void OnMoving(float distance)
@@ -60,12 +71,14 @@ public class Enemy : MonoBehaviour
             if (distance < 2f)
             {
                 aiState = AIState.attacking;
+                animator.SetBool("attacking",true);
             }
         }
         else
         {
             nav.SetDestination(transform.position);
             aiState = AIState.idle;
+            animator.SetBool("walking", false);
         }
     }
 
