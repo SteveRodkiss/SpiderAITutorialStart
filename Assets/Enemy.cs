@@ -23,7 +23,7 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //float dist = Vector3.Distance(player.position, transform.position);
+        float dist = Vector3.Distance(player.position, transform.position);
         switch (aiState)
         {
             case AIState.idle:
@@ -36,20 +36,41 @@ public class Enemy : MonoBehaviour
                 }
                 break;
             case AIState.moving:
-                //what we do switch state
-                nav.SetDestination(player.position);
-                if (CanSeePlayer() == false)
-                {
-                    nav.SetDestination(transform.position);
-                    aiState = AIState.idle;
-                }
+                OnMoving(dist);
                 break;
             case AIState.attacking:
+                nav.SetDestination(transform.position);
+                if (dist > 2f)
+                {
+                    //we are out of attack range
+                    aiState = AIState.idle;
+                }
                 break;
             default:
                 break;
         }        
     }
+
+    void OnMoving(float distance)
+    {
+        //what we do switch state
+        if (CanSeePlayer())
+        {
+            nav.SetDestination(player.position);
+            if (distance < 2f)
+            {
+                aiState = AIState.attacking;
+            }
+        }
+        else
+        {
+            nav.SetDestination(transform.position);
+            aiState = AIState.idle;
+        }
+    }
+
+
+
 
     bool CanSeePlayer()
     {
@@ -65,7 +86,6 @@ public class Enemy : MonoBehaviour
             }
         }
         return false;
-
     }
 
 
