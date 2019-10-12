@@ -49,6 +49,7 @@ public class Enemy : MonoBehaviour
             //we are out of attack range
             aiState = AIState.idle;
             animator.SetBool("attacking", false);
+            animator.SetBool("walking", false);
         }
     }
 
@@ -60,6 +61,10 @@ public class Enemy : MonoBehaviour
             aiState = AIState.moving;
             animator.SetBool("walking", true);
         }
+        else
+        {
+            animator.SetBool("walking", false);
+        }
     }
 
     void OnMoving(float distance)
@@ -68,10 +73,12 @@ public class Enemy : MonoBehaviour
         if (CanSeePlayer())
         {
             nav.SetDestination(player.position);
+            animator.SetBool("walking", true);
             if (distance < 2f)
             {
                 aiState = AIState.attacking;
                 animator.SetBool("attacking",true);
+                
             }
         }
         else
